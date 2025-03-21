@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>首頁</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/main.css">
+  </head>
+  <body>
+    <!-- Sidebar -->
+    {{ template "sidebar" .Me }}
+    
+    <!-- Navbar -->
+    {{ template "navbar" "首頁" }}
+
+    <div class="container main-content">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h3 class="card-title">你好，{{ role .Me.Role }} #{{ .Me.Name }}</h3>
+          <p class="card-text">
+            帳號來自 {{ .Me.OauthProvider }}
+            {{- if .Me.TOTPSecret -}}
+            ，已啟用二次驗證
+            {{- end }}
+          </p>
+        </div>
+      </div>
+
+      {{- if asRole "member" | eq .Me.Role }}
+      <div class="card mb-4">
+        <div class="card-body">
+          <h3 class="card-title">注意事項</h3>
+          <ul class="list-group">
+            <li class="list-group-item">
+              您與志工的資訊都已經去識別化，使用代碼 (您的代碼是 {{ .Me.Name }}) 來隱藏身份。聯絡資料只有罷免團體的幹部，以及負責與你聯繫的志工可以看到。
+            </li>
+            <li class="list-group-item">
+              左上角的 <i class="bi bi-list"></i> 是主功能表，點擊後會展開側邊欄，顯示所有功能。
+            </li>
+            <li class="list-group-item">
+              這裡讓您可以預約交連署書，請使用
+              <a href="{{ uri "usr/schedule/list" }}" class="text-decoration-none">我要預約</a>
+              功能來預約。志工會找時間與您聯繫。
+            </li>
+            <li class="list-group-item">
+              志工們也是第一次參與罷免，不一定能回答所有問題。與預約時間地點無關的問題，請透過當地罷免團體的社群 (例如 Line、臉書社團) 提問。
+              <a href="https://bababa.tw">按這裡可以找到全台各地的罷免團體</a>。
+            </li>
+            <li class="list-group-item">
+              志工也有自己的工作和生活，無法隨時處理預約請求。
+              <span class="text-danger">請勿主動聯繫志工</span>，為我們保留一點私生活的空間。
+            </li>
+          </ul>
+        </div>
+      </div>
+      {{- end }}
+      
+    </div>
+  </body>
+</html>

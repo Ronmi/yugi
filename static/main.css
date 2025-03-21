@@ -1,0 +1,228 @@
+:root {
+    --primary: #E6B325;
+    --secondary: #8B4513;
+    --light-bg: #F8F4E3;
+    --gray-bg: #E8E4DD;
+    --accent: #A13C2E;
+    --success: #6B8E23;
+    --hover: #FFCC80;
+    
+    /* Status colors */
+    --status-pending: #FFF9C4;
+    --status-contacting: #BBDEFB;
+    --status-managing: #E1BEE7;
+    --status-confirmed: #C8E6C9;
+    --status-completed: #81C784;
+    --status-canceled: #E0E0E0;
+    --status-noshow: #FFCDD2;
+}
+
+body {
+    background-color: var(--gray-bg);
+    padding-bottom: 60px;
+}
+
+.navbar {
+    background-color: var(--secondary);
+}
+
+.navbar-brand img {
+    max-height: 40px;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    padding: 20px 0;
+    width: 280px;
+    background-color: var(--secondary);
+    color: white;
+    transition: all 0.3s;
+    transform: translateX(-100%);
+}
+
+.sidebar.show {
+    transform: translateX(0);
+}
+
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+}
+
+.sidebar-overlay.show {
+    display: block;
+}
+
+.sidebar-header {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-menu {
+    padding: 20px;
+}
+
+.sidebar-menu a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+}
+
+.sidebar-menu a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.main-content {
+    padding: 20px;
+}
+
+.card {
+    background-color: var(--light-bg);
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: var(--primary);
+    color: var(--secondary);
+    font-weight: bold;
+    border-radius: 10px 10px 0 0 !important;
+}
+
+.bg-primary {
+    background-color: var(--primary) !important;
+}
+
+.bg-secondary {
+    background-color: var(--secondary) !important;
+}
+
+.btn-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: var(--secondary);
+}
+
+.btn-primary:hover {
+    background-color: var(--hover);
+    border-color: var(--hover);
+    color: var(--secondary);
+}
+
+.btn-secondary {
+    background-color: var(--secondary);
+    border-color: var(--secondary);
+}
+
+.btn-secondary:hover {
+    background-color: #6B3410;
+    border-color: #6B3410;
+}
+
+.btn-accent {
+    background-color: var(--accent);
+    border-color: var(--accent);
+    color: white;
+}
+
+.btn-accent:hover {
+    background-color: #8B3429;
+    border-color: #8B3429;
+    color: white;
+}
+
+.badge-pending {
+    background-color: var(--status-pending);
+    color: #806600;
+}
+
+.badge-contacting {
+    background-color: var(--status-contacting);
+    color: #1565C0;
+}
+
+.badge-managing {
+    background-color: var(--status-managing);
+    color: #6A1B9A;
+}
+
+.badge-confirmed {
+    background-color: var(--status-confirmed);
+    color: #2E7D32;
+}
+
+.badge-completed {
+    background-color: var(--status-completed);
+    color: white;
+}
+
+.badge-canceled {
+    background-color: var(--status-canceled);
+    color: #616161;
+}
+
+.badge-noshow {
+    background-color: var(--status-noshow);
+    color: #B71C1C;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: var(--primary);
+    color: var(--secondary);
+}
+
+.accordion-button:focus {
+    box-shadow: 0 0 0 0.25rem rgba(230, 179, 37, 0.25);
+}
+
+.highlight {
+    background-color: yellow;
+    padding: 2px;
+}
+
+#searchInput {
+    border-radius: 20px;
+    padding-left: 40px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 10px;
+    color: #868e96;
+}
+
+.appointment-card {
+    transition: all 0.3s;
+}
+
+.appointment-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.edit-form textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+@media (max-width: 767.98px) {
+    .sidebar {
+        width: 250px;
+    }
+}

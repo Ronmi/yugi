@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>成員列表</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/main.css">
+  </head>
+  <body>
+    <!-- Sidebar -->
+    {{ template "sidebar" .Me }}
+    
+    <!-- Navbar -->
+    {{ template "navbar" "成員列表" }}
+
+    <div class="container main-content">
+      <div class="card mb-4">
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="position-relative">
+                <i class="bi bi-search search-icon"></i>
+                <input type="text" class="form-control" id="searchInput" placeholder="搜尋成員...">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="memberContainer">
+        {{- range .Data }}
+        <div class="card appointment-card">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <div>{{ role .Role }}</div>
+            <div>
+              #{{ .Name }}
+              {{- if .Note }}
+              ({{ .Note }})
+              {{- end }}
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+
+              <div class="card-body">
+                <h5 class="card-title mb-3">修改備註</h5>
+                <p class="mb-2">
+                  <form action="{{ uri "mgr/member/note/edit" }}" method="post">
+                    <input type="hidden" name="id" value="{{ .ID }}" />
+                    <label for="edit-note">公開備註</label>
+                    <div class="input-group">
+                      <input type="text" id="edit-note" name="note" class="form-control" placehoder="建議輸入志工暱稱" value="{{ .Note }}" />
+                      <button type="submit" class="btn btn-accent">儲存</button>
+                    </div>
+                    <small class="form-text text-muted">志工可見，建議用暱稱</small>
+                  </form>
+                </p>
+                <p class="mb-2">
+                  <form action="{{ uri "mgr/member/secret/edit" }}" method="post">
+                    <input type="hidden" name="id" value="{{ .ID }}" />
+                    <label for="edit-secret" class="form-label">秘密備註</label>
+                    <div class="input-group">
+                      <input type="text" name="secret" id="edit-secret" class="form-control" value="{{ .Secret }}" />
+                      <button type="submit" class="btn btn-accent">儲存</button>
+                    </div>
+                    <small class="form-text text-muted">僅幹部可見</small>
+                  </form>
+                </p>
+              </div>
+
+              <div class="card-body d-grid gap-2 d-md-block">
+                <button class="btn btn-primary" data-clipboard-text="{{ .Name }}">複製編號</button>
+                {{- if eq .Role "manager" }}
+                <a href="{{ uri "mgr/role/grant" }}?name={{ .Name }}&role=volunteer" class="btn btn-accent">改成志工</a>
+                <a href="{{ uri "mgr/role/grant" }}?name={{ .Name }}&role=novice" class="btn btn-accent">改成新手</a>
+                <a href="{{ uri "mgr/role/revoke" }}?name={{ .Name }}" class="btn btn-danger">移出團隊</a>
+                {{- end }}
+                {{- if eq .Role "volunteer" }}
+                <a href="{{ uri "mgr/role/grant" }}?name={{ .Name }}&role=manager" class="btn btn-accent">改成幹部</a>
+                <a href="{{ uri "mgr/role/grant" }}?name={{ .Name }}&role=novice" class="btn btn-accent">改成新手</a>
+                <a href="{{ uri "mgr/role/revoke" }}?name={{ .Name }}" class="btn btn-danger">移出團隊</a>
+                {{- end }}
+                {{- if eq .Role "novice" }}
+                <a href="{{ uri "mgr/role/grant" }}?name={{ .Name }}&role=volunteer" class="btn btn-accent">改成志工</a>
+                <a href="{{ uri "mgr/role/grant" }}?name={{ .Name }}&role=manager" class="btn btn-accent">改成幹部</a>
+                <a href="{{ uri "mgr/role/revoke" }}?name={{ .Name }}" class="btn btn-danger">移出團隊</a>
+                {{- end }}
+                <button type="button" class="btn btn-danger"
+                        data-reset-2fa-username="{{ .Name }}"
+                        data-reset-2fa-usernote="{{ .Note }}"
+                        data-reset-2fa-id="{{ .ID }}">
+                  重設雙重驗證
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        {{- end }}
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <h3 class="card-title">新增新手志工</h3>
+          <p class="mb-2">
+            <form action="{{ uri "mgr/role/grant" }}" method="get">
+              <input type="hidden" name="role" value="novice" />
+              <label for="name" class="form-label">新成員編號 (四字中文短語)</label>
+              <div class="input-group">
+                <input type="text" name="name" id="name" class="form-control" required />
+                <button type="submit" class="btn btn-primary">新增</button>
+              </div>
+            </form>
+          </p>
+        </div>
+      </div>
+      
+    </div>
+
+    <!-- 2FA 重設確認 Modal -->
+    <div class="modal fade" id="reset2FAModal" tabindex="-1" aria-labelledby="reset2FAModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="reset2FAModalLabel">確認重設雙重驗證</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>
+              確定要為
+              <span id="reset2FAUsername" class="text-danger"></span>
+              (
+              <span id="reset2FAUserNote" class="text-danger"></span>
+              )
+              重設雙重驗證嗎？
+            </p>
+            <p class="text-danger">請確認該名成員在你身邊，以便掃描 QRCode 及確認重設是否成功。</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+            <form id="reset2FAForm" action="" method="get">
+              <input type="hidden" id="reset2FANameInput" name="name" value="">
+              <button type="submit" class="btn btn-danger">確認重設</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // clipboard
+        new ClipboardJS('[data-clipboard-text]');
+        
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const appointmentCards = document.querySelectorAll('.appointment-card');
+        
+        searchInput.addEventListener('input', function() {
+          const searchTerm = this.value.toLowerCase();
+          
+          appointmentCards.forEach(card => {
+            const textContent = card.textContent.toLowerCase();
+            if (textContent.includes(searchTerm)) {
+              card.style.display = 'block';
+              
+              if (searchTerm.length > 0) {
+                highlightText(card, searchTerm);
+              } else {
+                removeHighlights(card);
+              }
+            } else {
+              card.style.display = 'none';
+            }
+          });
+        });
+        
+        function highlightText(element, searchTerm) {
+          removeHighlights(element);
+          
+          const walker = document.createTreeWalker(
+            element,
+            NodeFilter.SHOW_TEXT,
+            null,
+            false
+          );
+          
+          const nodesToReplace = [];
+          let currentNode;
+          
+          while (currentNode = walker.nextNode()) {
+            if (currentNode.parentNode.tagName !== 'TEXTAREA' && 
+                currentNode.parentNode.tagName !== 'SELECT' && 
+                currentNode.parentNode.tagName !== 'OPTION') {
+              
+              const text = currentNode.nodeValue;
+              const lowerText = text.toLowerCase();
+              
+              if (lowerText.includes(searchTerm)) {
+                nodesToReplace.push(currentNode);
+              }
+            }
+          }
+          
+          nodesToReplace.forEach(node => {
+            const text = node.nodeValue;
+            const lowerText = text.toLowerCase();
+            const parts = [];
+            let lastIndex = 0;
+            
+            for (let i = 0; i < lowerText.length; i++) {
+              if (lowerText.substring(i, i + searchTerm.length) === searchTerm) {
+                if (i > lastIndex) {
+                  parts.push(document.createTextNode(text.substring(lastIndex, i)));
+                }
+                
+                const highlightSpan = document.createElement('span');
+                highlightSpan.className = 'highlight';
+                highlightSpan.textContent = text.substring(i, i + searchTerm.length);
+                parts.push(highlightSpan);
+                
+                i += searchTerm.length - 1;
+                lastIndex = i + 1;
+              }
+            }
+            
+            if (lastIndex < text.length) {
+              parts.push(document.createTextNode(text.substring(lastIndex)));
+            }
+            
+            const fragment = document.createDocumentFragment();
+            parts.forEach(part => fragment.appendChild(part));
+            
+            node.parentNode.replaceChild(fragment, node);
+          });
+        }
+        
+        function removeHighlights(element) {
+          const highlights = element.querySelectorAll('.highlight');
+          highlights.forEach(highlight => {
+            const parent = highlight.parentNode;
+            parent.replaceChild(document.createTextNode(highlight.textContent), highlight);
+            parent.normalize();
+          });
+        }
+
+        // 重設雙重驗證功能
+        const resetButtons = document.querySelectorAll('[data-reset-2fa-username]');
+        const reset2FAModal = new bootstrap.Modal(document.getElementById('reset2FAModal'));
+        const reset2FAForm = document.getElementById('reset2FAForm');
+        const reset2FANameInput = document.getElementById('reset2FANameInput');
+        const reset2FAUsername = document.getElementById('reset2FAUsername');
+        const reset2FAUserNote = document.getElementById('reset2FAUserNote');
+
+        resetButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            const username = this.getAttribute('data-reset-2fa-username');
+            const usernote = this.getAttribute('data-reset-2fa-usernote') || '(無備註)';
+            
+            // 設置表單的目標網址
+            reset2FAForm.action = `{{ uri "2fa/reset/step1" }}`;
+            
+            // 填充Modal的內容
+            reset2FAUsername.textContent = username;
+            reset2FAUserNote.textContent = usernote;
+            reset2FANameInput.value = username;
+            
+            // 顯示Modal
+            reset2FAModal.show();
+          });
+        });
+
+      });
+    </script>
+    
+  </body>
+</html>

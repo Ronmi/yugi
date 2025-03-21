@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>我的預約</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/main.css">
+  </head>
+  <body>
+    <!-- Sidebar -->
+    {{ template "sidebar" .Me }}
+    
+    <!-- Navbar -->
+    {{ template "navbar" "我的預約" }}
+    
+    <div class="container main-content">
+      {{- range .Data }}
+      <div class="card mb-4">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <div>預約 #{{ .ID }}</div>
+          <div>{{ template "status" .Status }}</div>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="card h-100">
+                <div class="card-header">志工行程資訊</div>
+                <div class="card-body">
+                  <p class="mb-1"><i class="bi bi-calendar2-range me-2"></i>從 {{ time .Schedule.BeginAt }}</p>
+                  <p class="mb-1"><i class="bi bi-calendar2-range me-2"></i>到 {{ time .Schedule.EndAt }}</p>
+                  <p class="mb-0"><i class="bi bi-geo-alt me-2"></i>{{ .Schedule.Area }}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="card h-100">
+                <div class="card-header">註記與功能</div>
+                <div class="card-body">
+                  {{- if .UserNote }}
+                  <div class="mb-3 d-flex">
+                    <div class="flex-shrink-1"><i class="bi bi-file-earmark-text me-2"></i></div>
+                    <div class="w-100">{{ nl2br .UserNote }}</div>
+                  </div>
+                  {{- end }}
+                  <div class="mb-1">
+                    <a href="{{ uri "usr/appointment/detail" }}?id={{ .ID }}" class="btn btn-primary">詳細資訊</a>
+                    {{- if asStatus "pending" | eq .Status }}
+                    <a href="{{ uri "usr/appointment/delete" }}?id={{ .ID }}" class="btn btn-danger">取消</a>
+                    {{- end }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {{- else }}
+      <div class="card mb-4">
+        <div class="card-body">
+          <p class="mb-0">沒有任何預約</p>
+        </div>
+      </div>
+      {{- end }}
+
+      <div class="accordion mt-4" id="processAccordion">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="statusHeading">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#statusCollapse">
+              <i class="bi bi-info-circle me-2"></i>狀態說明
+            </button>
+          </h2>
+          <div id="statusCollapse" class="accordion-collapse collapse" data-bs-parent="#processAccordion">
+            <div class="accordion-body">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex align-items-center">
+                  <span class="badge rounded-pill badge-pending me-2">待確認</span>
+                  <span>等志工確認是否可以預約</span>
+                </li>
+                <li class="list-group-item d-flex align-items-center">
+                  <span class="badge rounded-pill badge-contacting me-2">聯絡中</span>
+                  <span>志工已看到，並會找時間與您聯絡</span>
+                </li>
+                <li class="list-group-item d-flex align-items-center">
+                  <span class="badge rounded-pill badge-managing me-2">幹部處理中</span>
+                  <span>志工的行程無法與您配合，已回報幹部協調其他志工處理</span>
+                </li>
+                <li class="list-group-item d-flex align-items-center">
+                  <span class="badge rounded-pill badge-confirmed me-2">預約成功</span>
+                  <span>志工已與您敲定時間地點</span>
+                </li>
+                <li class="list-group-item d-flex align-items-center">
+                  <span class="badge rounded-pill badge-completed me-2">已完成</span>
+                  <span>志工已經和您碰面收取連署書</span>
+                </li>
+                <li class="list-group-item d-flex align-items-center">
+                  <span class="badge rounded-pill badge-canceled me-2">已取消</span>
+                  <span>這次預約已被取消</span>
+                </li>
+                <li class="list-group-item d-flex align-items-center">
+                  <span class="badge rounded-pill badge-noshow me-2">未出席</span>
+                  <span>您未在約定的時間地點出現，志工已前往下一個預約</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </body>
+</html>

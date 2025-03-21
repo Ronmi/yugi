@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>重設雙重驗證</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/main.css">
+  </head>
+  <body>
+    <!-- Sidebar -->
+    {{ template "sidebar" .Me }}
+
+    <!-- Navbar -->
+    {{ template "navbar" "重設雙重驗證" }}
+
+    <div class="container main-content">
+      <div class="card mb-4">
+        <img class="card-img-top" alt="{{ .URI }}" src="{{ .QRCode }}"/>
+        <div class="card-body">
+          <p class="card-text">
+            請該位志工下載適當的 OTP 應用程式，例如 Google Authenticator 或 Authy，並掃描以上 QR Code 以啟用二次驗證
+          </p>
+          
+          <p class="card-text">
+            如果無法掃描 QR Code，請手動輸入以下設定金鑰：
+          </p>
+
+          <p class="input-group">
+            <input type="text" class="form-control" id="secret" value="{{ .Secret }}" readonly>
+            <button class="btn btn-outline-secondary" type="button" data-clipboard-text="{{ .Secret }}">
+              <i class="bi bi-clipboard"></i>
+              複製
+            </button>
+          </p>
+
+          <p class="card-text">
+            掃碼完成後，請志工重新登入，確認雙重驗證已重設成功
+          </p>
+
+        </div>
+      </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // clipboard
+        new ClipboardJS('[data-clipboard-text]');
+        
+      });
+    </script>
+  </body>
+</html>

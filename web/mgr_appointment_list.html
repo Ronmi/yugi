@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>預約列表</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/main.css">
+  </head>
+  <body>
+    <!-- Sidebar -->
+    {{ template "sidebar" .Me }}
+    
+    <!-- Navbar -->
+    {{ template "navbar" "預約列表" }}
+    
+    <!-- Main Content -->
+    <div class="container main-content">
+      <!-- Search & Sort Tools -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="position-relative">
+                <i class="bi bi-search search-icon"></i>
+                <input type="text" class="form-control" id="searchInput" placeholder="搜尋預約...">
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="d-flex flex-wrap gap-2">
+                <div class="btn-group">
+                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-sort-down me-1"></i>排序
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li><a class="dropdown-item sort-link" href="#" data-sort="beginTime">開始時間 (升序)</a></li>
+                    <li><a class="dropdown-item sort-link" href="#" data-sort="beginTime" data-order="desc">開始時間 (降序)</a></li>
+                    <li><a class="dropdown-item sort-link" href="#" data-sort="endTime">結束時間 (升序)</a></li>
+                    <li><a class="dropdown-item sort-link" href="#" data-sort="endTime" data-order="desc">結束時間 (降序)</a></li>
+                    <li><a class="dropdown-item sort-link" href="#" data-sort="volunteer">志工名稱 (升序)</a></li>
+                    <li><a class="dropdown-item sort-link" href="#" data-sort="volunteer" data-order="desc">志工名稱 (降序)</a></li>
+                    <li><a class="dropdown-item sort-link" href="#" data-sort="status">狀態 (升序)</a></li>
+                    <li><a class="dropdown-item sort-link" href="#" data-sort="status" data-order="desc">狀態 (降序)</a></li>
+                    <li><a class="dropdown-item sort-link" href="#" data-sort="aid">預約編號 (升序)</a></li>
+                    <li><a class="dropdown-item sort-link" href="#" data-sort="aid" data-order="desc">預約編號 (降序)</a></li>
+                    <li><a class="dropdown-item sort-link" href="#" data-sort="sid">行程編號 (升序)</a></li>
+                    <li><a class="dropdown-item sort-link" href="#" data-sort="sid" data-order="desc">行程編號 (降序)</a></li>
+                  </ul>
+                </div>
+                <button class="btn btn-outline-secondary" id="resetFilters">
+                  <i class="bi bi-arrow-counterclockwise me-1"></i>重設
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Appointments -->
+      <div id="appointmentContainer">
+        {{- range .Data }}
+        <div class="card appointment-card" 
+             data-begin-time="{{ .Schedule.BeginAt }}" 
+             data-end-time="{{ .Schedule.EndAt }}" 
+             data-volunteer="{{ .Schedule.User.Name }}" 
+             data-status="{{ .Status }}"
+             data-aid="{{ .ID }}"
+             data-sid="{{ .Schedule.ID }}">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <div>
+              {{ template "status" .Status }}
+              <span class="ms-2">預約#{{ .ID }}</span>
+              <span class="ms-1">(行程#{{ .Schedule.ID }})</span>
+            </div>
+            <div>
+              <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#details{{ .ID }}">
+                <i class="bi bi-arrows-expand"></i> 詳細資訊
+              </button>
+            </div>
+          </div>
+          <div class="collapse" id="details{{ .ID }}">
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <div class="card h-100">
+                    <div class="card-header">志工資訊</div>
+                    <div class="card-body">
+                      <p class="mb-1">
+                        <i class="bi bi-person-badge me-2"></i>
+                        {{ role .Schedule.User.Role }}
+                        #{{ .Schedule.User.Name }}
+                        <button class="btn btn-sm btn-outline-secondary ms-2" data-clipboard-text="{{ .Schedule.User.Name }}">
+                          <i class="bi bi-clipboard"></i>
+                        </button>
+                      </p>
+                      {{- if .Schedule.User.Note }}
+                      <p class="mb-1"><i class="bi bi-info-circle me-2"></i>{{ .Schedule.User.Note }}</p>
+                      {{- end }}
+                      <p class="mb-1"><i class="bi bi-calendar2-range me-2"></i>從 {{ time .Schedule.BeginAt }}</p>
+                      <p class="mb-1"><i class="bi bi-calendar2-range me-2"></i>到 {{ time .Schedule.EndAt }}</p>
+                      <p class="mb-0"><i class="bi bi-geo-alt me-2"></i>{{ .Schedule.Area }}</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="card h-100">
+                    <div class="card-header">民眾聯絡方式</div>
+                    <div class="card-body">
+                      <p class="mb-1">
+                        <i class="bi bi-person-fill me-2"></i>
+                        {{ .User.Name }}
+                        <button class="btn btn-sm btn-outline-secondary ms-2" data-clipboard-text="{{ .User.Name }}">
+                          <i class="bi bi-clipboard"></i>
+                        </button>
+                      </p>
+                      <p class="mb-1"><i class="bi bi-person me-2"></i>{{ .ContactMethod.Name }}</p>
+                      <p class="mb-1"><i class="bi bi-telephone me-2"></i>{{ .ContactMethod.Phone }}</p>
+                      <p class="mb-0"><i class="bi bi-chat-left-text me-2"></i>{{ nl2br .ContactMethod.Prefer }}</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="card h-100">
+                    <div class="card-header">公開備註</div>
+                    <div class="card-body">
+                      <form action="{{ uri "vol/appointment/note" }}" method="post" class="edit-form">
+                        <div class="mb-3">
+                          <textarea id="note{{ .ID }}" name="note" class="form-control">{{ .UserNote }}</textarea>
+                          <input type="hidden" name="id" value="{{ .ID }}" />
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                          <i class="bi bi-save me-1"></i>更新
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="card h-100">
+                    <div class="card-header">秘密備註</div>
+                    <div class="card-body">
+                      <form action="{{ uri "vol/appointment/secret" }}" method="post" class="edit-form">
+                        <div class="mb-3">
+                          <textarea id="secretNote{{ .ID }}" name="note" class="form-control">{{ .VolunteerNote }}</textarea>
+                          <input type="hidden" name="id" value="{{ .ID }}" />
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                          <i class="bi bi-save me-1"></i>更新
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="card">
+                    <div class="card-header">變更狀態</div>
+                    <div class="card-body">
+                      <div class="d-flex flex-wrap gap-2 align-items-center">
+                        <a href="{{ uri "mgr/appointment/detail" }}?id={{ .ID }}" class="btn btn-outline-secondary">
+                          <i class="bi bi-card-text me-1"></i>詳細資訊
+                        </a>
+                        <form action="{{ uri "mgr/appointment/status" }}" method="post" class="d-flex gap-2">
+                          <input type="hidden" name="id" value="{{ .ID }}" />
+                          <select name="status" class="form-select">
+                            {{- $v := . }}
+                            {{- range $txt, $id := $.StatusList }}
+                            <option value="{{ $id }}" {{ if eq $id $v.Status }}selected{{ end }}>{{ appointmentStatus $id }}</option>
+                            {{- end }}
+                          </select>
+                          <button type="submit" class="btn btn-accent">
+                            <i class="bi bi-arrow-right-circle me-1"></i>變更狀態
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {{- else }}
+        <div class="card">
+          <div class="card-body text-center py-5">
+            <i class="bi bi-calendar-x display-1 text-muted"></i>
+            <h4 class="mt-3">沒有任何預約</h4>
+          </div>
+        </div>
+        {{- end }}
+      </div>
+      
+      <!-- Process Explanation -->
+      <div class="accordion mt-4" id="processAccordion">
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="statusHeading">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#statusCollapse">
+              <i class="bi bi-info-circle me-2"></i>狀態說明
+            </button>
+          </h2>
+          <div id="statusCollapse" class="accordion-collapse collapse" data-bs-parent="#processAccordion">
+            <div class="accordion-body">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex align-items-center">
+                  <span class="badge rounded-pill badge-pending me-2">待確認</span>
+                  <span>等你確認是否可以預約</span>
+                </li>
+                <li class="list-group-item d-flex align-items-center">
+                  <span class="badge rounded-pill badge-contacting me-2">聯絡中</span>
+                  <span>你已看到，並會找時間與該民眾聯絡</span>
+                </li>
+                <li class="list-group-item d-flex align-items-center">
+                  <span class="badge rounded-pill badge-managing me-2">幹部處理中</span>
+                  <span>你行程無法與該民眾配合，已回報幹部協調其他志工處理</span>
+                </li>
+                <li class="list-group-item d-flex align-items-center">
+                  <span class="badge rounded-pill badge-confirmed me-2">預約成功</span>
+                  <span>你已與該民眾敲定時間地點</span>
+                </li>
+                <li class="list-group-item d-flex align-items-center">
+                  <span class="badge rounded-pill badge-completed me-2">已完成</span>
+                  <span>您已經和民眾碰面收取連署書</span>
+                </li>
+                <li class="list-group-item d-flex align-items-center">
+                  <span class="badge rounded-pill badge-canceled me-2">已取消</span>
+                  <span>這次預約已被取消</span>
+                </li>
+                <li class="list-group-item d-flex align-items-center">
+                  <span class="badge rounded-pill badge-noshow me-2">未出席</span>
+                  <span>民眾未在約定的時間地點出現</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="seniorHeading">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#seniorCollapse">
+              <i class="bi bi-stars me-2"></i>老手志工流程說明
+            </button>
+          </h2>
+          <div id="seniorCollapse" class="accordion-collapse collapse" data-bs-parent="#processAccordion">
+            <div class="accordion-body">
+              <ol class="list-group list-group-numbered">
+                <li class="list-group-item">一開始，預約會處於待確認狀態</li>
+                <li class="list-group-item">請選擇<span class="text-danger fw-bold">開始聯絡</span> (這會將狀態改成聯絡中)，並與民眾確認實際會面時間地點</li>
+                <li class="list-group-item">如果敲定行程，請在公開備註中記錄後，選擇<span class="text-danger fw-bold">確認預約</span>，這會把狀態改成預約成功</li>
+                <li class="list-group-item">如果行程喬不攏，請在公開備註或秘密備註中記錄該民眾適合的時間地點，再選擇重新配對。這會把狀態改成幹部處理中，交由幹部介入處理</li>
+                <li class="list-group-item">請在約定的時間前往收件</li>
+                <li class="list-group-item">若民眾未出現，請選擇<span class="text-danger fw-bold">找不到人</span>，這會把狀態改成未出席</li>
+                <li class="list-group-item">若民眾有出現，請在收件後指導民眾產生簽收 QR Code，然後掃碼進行簽收</li>
+                <li class="list-group-item">若要再次會面 (例如民眾想過幾天提供更多連署書)，請指導民眾重新預約，必要時可以當場建立新的行程供民眾預約，並當場確認</li>
+                <li class="list-group-item"><span class="text-danger fw-bold">若要展示預約的內容給民眾，請務必點開預約的詳細資訊，以免被民眾看到秘密備註</span></li>
+              </ol>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="juniorHeading">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#juniorCollapse">
+              <i class="bi bi-person-check me-2"></i>新手志工說明
+            </button>
+          </h2>
+          <div id="juniorCollapse" class="accordion-collapse collapse" data-bs-parent="#processAccordion">
+            <div class="accordion-body">
+              <div class="alert alert-info">
+                <p>新手志工無法與民眾聯絡，請等待幹部安排。幹部會在敲定行程之後，另外告知你時間、地點與聯絡方式。你可以在這裡確認預約狀態和備註。現場收件的流程與老手相同。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="btn btn-primary position-fixed bottom-0 end-0 m-4 rounded-circle" style="width: 50px; height: 50px; display: none;">
+      <i class="bi bi-arrow-up"></i>
+    </button>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // clipboard
+        new ClipboardJS('[data-clipboard-text]');
+        
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const appointmentCards = document.querySelectorAll('.appointment-card');
+        
+        searchInput.addEventListener('input', function() {
+          const searchTerm = this.value.toLowerCase();
+          
+          appointmentCards.forEach(card => {
+            const textContent = card.textContent.toLowerCase();
+            if (textContent.includes(searchTerm)) {
+              card.style.display = 'block';
+              
+              if (searchTerm.length > 0) {
+                highlightText(card, searchTerm);
+              } else {
+                removeHighlights(card);
+              }
+            } else {
+              card.style.display = 'none';
+            }
+          });
+        });
+        
+        function highlightText(element, searchTerm) {
+          removeHighlights(element);
+          
+          const walker = document.createTreeWalker(
+            element,
+            NodeFilter.SHOW_TEXT,
+            null,
+            false
+          );
+          
+          const nodesToReplace = [];
+          let currentNode;
+          
+          while (currentNode = walker.nextNode()) {
+            if (currentNode.parentNode.tagName !== 'TEXTAREA' && 
+                currentNode.parentNode.tagName !== 'SELECT' && 
+                currentNode.parentNode.tagName !== 'OPTION') {
+              
+              const text = currentNode.nodeValue;
+              const lowerText = text.toLowerCase();
+              
+              if (lowerText.includes(searchTerm)) {
+                nodesToReplace.push(currentNode);
+              }
+            }
+          }
+          
+          nodesToReplace.forEach(node => {
+            const text = node.nodeValue;
+            const lowerText = text.toLowerCase();
+            const parts = [];
+            let lastIndex = 0;
+            
+            for (let i = 0; i < lowerText.length; i++) {
+              if (lowerText.substring(i, i + searchTerm.length) === searchTerm) {
+                if (i > lastIndex) {
+                  parts.push(document.createTextNode(text.substring(lastIndex, i)));
+                }
+                
+                const highlightSpan = document.createElement('span');
+                highlightSpan.className = 'highlight';
+                highlightSpan.textContent = text.substring(i, i + searchTerm.length);
+                parts.push(highlightSpan);
+                
+                i += searchTerm.length - 1;
+                lastIndex = i + 1;
+              }
+            }
+            
+            if (lastIndex < text.length) {
+              parts.push(document.createTextNode(text.substring(lastIndex)));
+            }
+            
+            const fragment = document.createDocumentFragment();
+            parts.forEach(part => fragment.appendChild(part));
+            
+            node.parentNode.replaceChild(fragment, node);
+          });
+        }
+        
+        function removeHighlights(element) {
+          const highlights = element.querySelectorAll('.highlight');
+          highlights.forEach(highlight => {
+            const parent = highlight.parentNode;
+            parent.replaceChild(document.createTextNode(highlight.textContent), highlight);
+            parent.normalize();
+          });
+        }
+        
+        // Sorting functionality
+        const sortLinks = document.querySelectorAll('.sort-link');
+        const appointmentContainer = document.getElementById('appointmentContainer');
+        
+        sortLinks.forEach(link => {
+          link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const sortBy = this.dataset.sort;
+            const sortOrder = this.dataset.order || 'asc';
+            
+            const cards = Array.from(appointmentCards);
+            
+            cards.sort((a, b) => {
+              let valueA = a.dataset[sortBy];
+              let valueB = b.dataset[sortBy];
+              
+              // Convert to numbers if possible
+              if (!isNaN(valueA) && !isNaN(valueB)) {
+                valueA = Number(valueA);
+                valueB = Number(valueB);
+              }
+              
+              if (valueA < valueB) {
+                return sortOrder === 'asc' ? -1 : 1;
+              }
+              if (valueA > valueB) {
+                return sortOrder === 'asc' ? 1 : -1;
+              }
+              return 0;
+            });
+            
+            // Re-append sorted cards
+            cards.forEach(card => {
+              appointmentContainer.appendChild(card);
+            });
+          });
+        });
+        
+        // Reset filters
+        const resetFilters = document.getElementById('resetFilters');
+        resetFilters.addEventListener('click', function() {
+          searchInput.value = '';
+          
+          appointmentCards.forEach(card => {
+            card.style.display = 'block';
+            removeHighlights(card);
+          });
+        });
+        
+        // Back to top button
+        const backToTopButton = document.getElementById('backToTop');
+        window.addEventListener('scroll', function() {
+          if (window.scrollY > 300) {
+            backToTopButton.style.display = 'block';
+          } else {
+            backToTopButton.style.display = 'none';
+          }
+        });
+        backToTopButton.addEventListener('click', function() {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+      });
+    </script>
+  </body>
+</html>

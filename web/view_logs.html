@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>操作記錄</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/main.css">
+  </head>
+  <body>
+    <!-- Sidebar -->
+    {{ template "sidebar" .Me }}
+    
+    <!-- Navbar -->
+    {{ template "navbar" "預約列表" }}
+
+    <div class="container main-content">
+      <div class="card mb-4">
+        <div class="card-body">
+          <table class="table table-hover table-striped">
+            <thead>
+              <tr>
+                <th>時間</th>
+                {{- if .Data }}{{if (index .Data 0).User }}
+                <th>誰</th>
+                {{- end }}{{ end }}
+                <th>動作</th>
+                <th>記錄</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{- range .Data }}
+              <tr>
+                <td>{{ time .CreatedAt }}</td>
+                {{- if .User }}
+                <td>{{ role .User.Role }} #{{ .User.Name }}</td>
+                {{- end }}
+                <td>{{ .Action }}</td>
+                <td>{{ .Description }}</td>
+              </tr>
+              {{- else }}
+              <tr>
+                <td colspan="3">沒有任何記錄</td>
+              </tr>
+              {{- end }}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+  </body>
+</html>

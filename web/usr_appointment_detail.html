@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>預約資訊</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/main.css">
+  </head>
+  <body>
+    <!-- Sidebar -->
+    {{ template "sidebar" .Me }}
+    
+    <!-- Navbar -->
+    {{ template "navbar" "預約資訊" }}
+    
+    <div class="container main-content">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="card mb-4 h-100">
+            <div class="card-header">預約資料</div>
+            <div class="card-body">
+              {{- with .Data }}
+              <ul class="list-group mb-3">
+                <li class="list-group-item">
+                  預約編號: {{ .ID }}
+                </li>
+                <li class="list-group-item">
+                  行程編號: {{ .ScheduleID }}
+                </li>
+                <li class="list-group-item">
+                  民眾: {{ .User.Name }}
+                </li>
+                <li class="list-group-item">
+                  志工: {{ .Schedule.User.Name }} ({{ .Schedule.User.Org.Name }})
+                </li>
+                <li class="list-group-item">
+                  登記時間: {{ time .RegisterAt }}
+                </li>
+                <li class="list-group-item">
+                  目前狀態: {{ template "status" .Status }}
+                </li>
+                <li class="list-group-item d-flex">
+                  <div>備註:</div>
+                  <div class="flex-grow-1">{{ nl2br .UserNote }}</div>
+                </li>
+              </ul>
+
+              {{- if not .Receipt }}{{ if asStatus "confirmed" | eq .Status }}
+              <div class="mb-2">
+                <form action="{{ uri "usr/receipt/create" }}" method="post">
+                  <input type="hidden" name="id" value="{{ .ID }}">
+                  <label for="secret" class="form-label">簽收密語</label>
+                  <div class="input-group">
+                    <input id="secret" name="secret" type="text" value=""/>
+                    <button class="btn btn-primary btn-sm">
+                      產生簽收條碼
+                    </button>
+                  </div>
+                </form>
+              </div>
+              {{- end }}{{ end }}
+              {{- end }}
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card mb-4 h-100">
+            <div class="card-header">建議下一步行動</div>
+            <div class="card-body">
+              <ol class="list-group">
+                {{- if asStatus "pending" | eq .Data.Status }}
+                <li class="list-group-item">
+                  耐心等待志工與您聯繫
+                </li>
+                <li class="list-group-item">
+                  請您的親朋好友一起簽署連署書，到時可以一起交件
+                </li>
+                {{- end }}
+                {{- if asStatus "contacting" | eq .Data.Status }}
+                <li class="list-group-item">
+                  注意電話或簡訊，志工會與您聯繫
+                </li>
+                <li class="list-group-item">
+                  請與志工確認詳細的時間地點，若需要我們提供空白連署書，請告訴志工
+                </li>
+                <li class="list-group-item">
+                  請您的親朋好友一起簽署連署書，到時可以一起交件
+                </li>
+                {{- end }}
+                {{- if asStatus "confirmed" | eq .Data.Status }}
+                <li class="list-group-item">
+                  請務必準時到達約定地點，可以的話也請攜帶身份證
+                </li>
+                <li class="list-group-item">
+                  如果臨時有事不能到場，請務必通知志工
+                </li>
+                <li class="list-group-item">
+                  請您的親朋好友一起簽署連署書，到時可以一起交件
+                </li>
+                {{- end }}
+                {{- if or (asStatus "completed" | eq .Data.Status) (asStatus "cancelled" | eq .Data.Status) (asStatus "missed" | eq .Data.Status) }}
+                <li class="list-group-item">
+                  若連署書無效，請重新填寫，重新預約
+                </li>
+                <li class="list-group-item">
+                  請您的親朋好友一起簽署連署書，重新預約或到在地罷免團體的攤位交件
+                </li>
+                {{- end }}
+                <li class="list-group-item">
+                  <a href="https://bababa.tw">加入在地罷免團體的社群</a>，獲得更多資訊
+                </li>
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        {{- with .Data.Receipt }}
+        <div class="col-md-6">
+          <div class="card mb-4 h-100">
+            <div class="card-header">簽收記錄</div>
+            <div class="card-body">
+              <h5 class="card-title">簽收條碼</h5>
+              <p class="mb-1">
+                製作人: {{ .CreatedByUser.Name }}
+                {{- if .CreatedByUser.Org }}
+                ({{ .CreatedByUser.Org.Name }})
+                {{- end }}
+              </p>
+              <p class="mb-1">
+                製作時間: {{ time .CreatedAt }}
+              </p>
+              <p class="mb-1">
+                簽收密語: {{ .Secret }}
+              </p>
+
+              {{- if .SignAt }}
+              <h5 class="card-title mt-4">志工簽收</h5>
+              <p class="mb-1">
+                簽收時間: {{ time .SignAt }}
+              </p>
+              {{- if len .Receives | gt 0 }}
+              <p class="mb-1">沒有收到有效連署書</p>
+              {{- else }}
+              {{- $cnt := 0 }}
+              <ul class="list-group">
+                {{- range $k, $v := .Receives }}{{ $cnt = addi $cnt $v }}
+                <li class="list-group-item">
+                  {{ $k }}: {{ $v }} 份
+                </li>
+                {{- end }}
+                <li class="list-group-item active">總計: {{ $cnt }} 份</li>
+              </ul>
+              {{- end }}
+              {{- end }}
+
+              {{- if .Manager }}
+              <h5 class="card-title mt-4">志工交件</h5>
+              <p class="mb-1">
+                交件時間: {{ time .SubmitAt }}
+              </p>
+              <p class="mb-1">
+                收件人: {{ .Manager.Name }}
+                {{- if .Manager.Org }}
+                ({{ .Manager.Org.Name }})
+                {{- end }}
+              </p>
+              {{- end }}
+            </div>
+          </div>
+        </div>
+        {{- end }}
+      </div>
+      
+    </div>
+  </body>
+</html>

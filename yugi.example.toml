@@ -1,0 +1,50 @@
+[log]
+color = true
+level = "info"
+
+[web]
+baseUrl = "https://example.com/prefix"
+tmplDir = "./web"
+staticDir = "./static"
+bindAddr = ":8080"
+#certFile = ""
+#keyFile = ""
+
+[db]
+dsn = "sqlite3://my.db"
+
+[sess]
+# 32 或 64 bytes
+authKey = "12345678901234567890123456789012"
+# 16, 24 或 32 bytes
+encKey = "12345678901234567890123456789012"
+
+[randName]
+# 每個字串至少都要 30 個字
+group1 = "宇宙乾坤日月山川田土石水火風雲雨雪霜露星辰鳥魚蟲獸羊馬牛虎豹鹿熊鷹兔蛇犬貓猴狼象鯨鯊獅"
+group2 = "北南東西上下左右中內外前後高低遠近明暗冷熱乾濕新舊大小長短輕重快慢緩急粗細強弱深淺多少"
+group3 = "青藍紅紫黃綠橙灰黑白棕橙橘粉赤墨春夏秋冬晨昏午夜時分秒刻晴陰雲霧雷電雨雪寒暑暖涼靜動順開合閉"
+group4 = "琴棋書畫樂金銀銅鐵鉛錫玉鑽珠寶砂塵土泥灰炭煤水冰波浪海潮氣煙沙礫地岩磚瓦木竹草葉花樹蔘"
+
+[auth.google]
+client = "key"
+secret = "secret"
+
+[auth.facebook]
+client = "key"
+secret = "secret"
+
+[auth.line]
+client = "key"
+secret = "secret"
+
+[auth.telegram]
+bot = "myauthbot"
+token = "my_tg_bot_token"
+size = "large" # large, medium, small
+radius = 0 # 0 = default
+write = false # true = 取得 bot 主動傳訊的權限
+
+[otp]
+issuer = "罷免油雞隊"
+

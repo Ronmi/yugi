@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>我要預約</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/main.css">
+  </head>
+  <body>
+    <!-- Sidebar -->
+    {{ template "sidebar" .Me }}
+    
+    <!-- Navbar -->
+    {{ template "navbar" "我要預約" }}
+
+    <div class="container main-content">
+      <div class="card mb-4">
+        <div class="card-body">
+          <form action="{{ uri "usr/schedule/list" }}" method="get">
+            <label for="include" class="form-label">選擇時間</label>
+            <div class="input-group">
+              <input type="datetime-local" name="include" id="include" class="form-control" value="{{ if .TimeSpec.Include }}{{ timespecfmt .TimeSpec.Include }}{{ end }}" />
+              <input type="submit" class="btn btn-primary" value="配對行程" />
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <h5 class="card-title">注意事項</h5>
+          <ul class="list-group mt-2">
+            <li class="list-group-item">
+              除了臨時無法到場外，<span class="text-danger">請勿主動聯絡志工</span>。志工也有自己的生活要顧
+            </li>
+            <li class="list-group-item">
+              這邊預約完之後，志工會找時間跟你聯絡，確認時間地點，或是改請其他志工來收件
+            </li>
+            <li class="list-group-item">
+              請事先準備好連署書 (可以的話也請準備證件，若連署書有問題可以當場補件)
+            </li>
+            <li class="list-group-item">
+              志工可能要跑好幾個地點，<span class="text-danger">請準時到場</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <h1>請選擇適合的行程</h1>
+      </div>
+      
+      <div>
+        {{- range .Data }}
+        <div class="card schedule-card" id="schedule-{{ .ID }}">
+          <div class="card-header">行程 #{{ .ID }}</div>
+          <div class="card-body mb-2">
+            <p class="mb-1"><i class="bi bi-calendar2-range me-2"></i>從 {{ time .BeginAt }}</p>
+            <p class="mb-1"><i class="bi bi-calendar2-range me-2"></i>到 {{ time .EndAt }}</p>
+            <p class="mb-1"><i class="bi bi-geo-alt me-2"></i>{{ .Area }}</p>
+          </div>
+          <div class="card-body">
+            <button class="btn btn-primary" type="button" data-schedule-id="{{ .ID }}">預約這個行程</button>
+          </div>
+        </div>
+        {{- else }}
+        <div class="card">
+          <div class="card-header">找不到適合的行程</div>
+          <div class="card-body">
+            <p class="mb-1">
+              請換個時間，或是與當地罷免團體聯絡
+            </p>
+          </div>
+        </div>
+        {{- end }}
+      </div>
+
+      <div id="contact-form" class="card mb-4" style="display:none;">
+        <div class="card-header">填寫聯絡資訊</div>
+        <div class="card-body">
+          <p class="mb-1">以下三項資訊請務必詳細填寫</p>
+          <form id="make-appointment" action="{{ uri "usr/appointment/make" }}" method="post">
+            <input type="hidden" name="schedule_id" id="schedule_id" value="" />
+            <div>
+              <label class="form-label" for="name">稱呼</label>
+              <input class="form-control" type="text" name="name" id="name" value="" />
+              <span class="text-muted">志工該如何稱呼您。例如：林先生、陳小姐，或是您的本名、您的綽號</span>
+            </div>
+            <div>
+              <label class="form-label" for="prefer">時間偏好</label>
+              <input class="form-control" type="text" name="prefer" id="prefer" value="" />
+              <span class="text-muted">方便聯絡的時間及方式，請盡量詳細。例如周一至五晚上6~8點</span>
+            </div>
+            <div>
+              <label class="form-label" for="phone">電話</label>
+              <input class="form-control" type="text" name="phone" id="phone" value="" />
+              <span class="text-muted">可以填多個電話</span>
+            </div>
+            <div class="mb-2">
+              <button type="button" class="btn btn-primary" onclick="checkvalue()">確認預約</button>
+              <button type="button" class="btn btn-accent" onclick="showall()">重新選擇行程</button>
+            </div>
+          </form>
+          
+        </div>
+      </div>
+      
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const selectButtons = document.querySelectorAll('button[data-schedule-id]');
+        const idInput = document.getElementById('schedule_id');
+        const nameInput = document.getElementById('name');
+        const contactForm = document.getElementById('contact-form');
+
+        selectButtons.forEach(button => {
+          button.addEventListener('click', function() {
+            const scheduleId = this.getAttribute('data-schedule-id');
+            const scheduleCard = document.getElementById('schedule-' + scheduleId);
+            const allCards = document.querySelectorAll('.schedule-card');
+            allCards.forEach(card => {
+              if (card !== scheduleCard) {
+                card.style.display = 'none';
+              }
+            });
+            idInput.value = scheduleId;
+            contactForm.style.display = 'block';
+            setTimeout(() => nameInput.focus(), 100);
+          });
+        });
+      });
+
+      function checkvalue(e) {
+        const name = document.getElementById('name').value;
+        const prefer = document.getElementById('prefer').value;
+        const phone = document.getElementById('phone').value;
+        const form = document.getElementById('make-appointment');
+
+        if (!name || !prefer || !phone) {
+          alert('請填寫所有聯絡資訊');
+          e.preventDefault();
+          return false;
+        }
+
+        form.submit();
+      }
+
+      function showall() {
+        const allCards = document.querySelectorAll('.schedule-card');
+        allCards.forEach(card => {
+          card.style.display = 'block';
+        });
+        document.getElementById('contact-form').style.display = 'none';
+      }
+    </script>
+  </body>
+</html>
