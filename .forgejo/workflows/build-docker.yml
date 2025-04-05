@@ -45,14 +45,6 @@ jobs:
           push: true
           pull: true
           tags: git.ronmi.tw/ronmi/yugi:arm64,ronmi/yugi:arm64
-      - name: Build arm64 image (git)
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          platforms: linux/arm64
-          push: true
-          pull: true
-          tags: git.ronmi.tw/ronmi/yugi:git-arm64,ronmi/yugi:git-arm64
       - name: Build amd64 binary
         run: GOARCH=amd64 go build
       - name: Build amd64 image
@@ -63,14 +55,6 @@ jobs:
           push: true
           pull: true
           tags: git.ronmi.tw/ronmi/yugi:amd64,ronmi/yugi:amd64
-      - name: Build amd64 image (git)
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          platforms: linux/amd64
-          push: true
-          pull: true
-          tags: git.ronmi.tw/ronmi/yugi:git-amd64,ronmi/yugi:git-amd64
       - name: Create multiarch image
         run: |
           docker buildx imagetools create -t git.ronmi.tw/ronmi/yugi git.ronmi.tw/ronmi/yugi:arm64 git.ronmi.tw/ronmi/yugi:amd64
