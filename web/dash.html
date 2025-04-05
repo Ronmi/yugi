@@ -19,12 +19,21 @@
       <div class="card mb-4">
         <div class="card-body">
           <h3 class="card-title">你好，{{ role .Me.Role }} #{{ .Me.Name }}</h3>
-          <p class="card-text">
+          <p class="card-text mb-2">
             帳號來自 {{ .Me.OauthProvider }}
             {{- if .Me.TOTPSecret -}}
             ，已啟用二次驗證
             {{- end }}
           </p>
+          {{- if .Me.Org }}
+          <p class="card-text">
+            <i class="bi bi-building-check-fill"></i>
+            <a href="{{ uri "org/detail" }}?name={{ .Me.Org.Name }}">
+              {{ .Me.Org.Name }}
+            </a>
+            的志工
+          </p>
+          {{- end }}
         </div>
       </div>
 

@@ -28,6 +28,11 @@
               <div class="card h-100">
                 <div class="card-header">志工行程資訊</div>
                 <div class="card-body">
+                  <p class="mb-1"><i class="bi bi-person-circle me-2"></i>{{ .Schedule.User.Name }}</p>
+                  <p class="mb-1">
+                    <i class="bi bi-building-fill-check me-2"></i>
+                    <a href="{{ uri "org/detail" }}?name={{ .Schedule.User.Org.Name }}">{{ .Schedule.User.Org.Name }}</a>
+                  </p>
                   <p class="mb-1"><i class="bi bi-calendar2-range me-2"></i>從 {{ time .Schedule.BeginAt }}</p>
                   <p class="mb-1"><i class="bi bi-calendar2-range me-2"></i>到 {{ time .Schedule.EndAt }}</p>
                   <p class="mb-0"><i class="bi bi-geo-alt me-2"></i>{{ .Schedule.Area }}</p>

@@ -60,6 +60,7 @@ func (srv) MgrAppointmentList(c Context) tmplspec {
 	if err != nil {
 		return errInternal("無法取得預約資料").
 			AddInfo(c).
+			AddError(err).
 			Redir(config.DashboardPage, "回到首頁")
 	}
 

@@ -33,7 +33,8 @@
                   民眾: {{ .User.Name }}
                 </li>
                 <li class="list-group-item">
-                  志工: {{ .Schedule.User.Name }} ({{ .Schedule.User.Org.Name }})
+                  志工: {{ .Schedule.User.Name }}
+                  (<a href="{{ uri "org/detail" }}?name={{ .Schedule.User.Org.Name }}">{{ .Schedule.User.Org.Name }}</a>)
                 </li>
                 <li class="list-group-item">
                   登記時間: {{ time .RegisterAt }}

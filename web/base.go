@@ -146,6 +146,8 @@ func New(db *gorm.DB) (task.Task, error) {
 		err404(Context{c}).Render(c)
 	})
 
+	// 無需登入的頁面
+	web.GET(config.OrgDetailPage, srv.OrgDetail)
 	// 登入功能
 	web.Group(config.BaseURLPath).
 		GET(config.LoginSelectPage, srv.Login).

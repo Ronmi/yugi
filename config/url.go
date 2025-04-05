@@ -54,6 +54,9 @@ const (
 	TelegramCallbackPage = "auth/telegram"
 	TOTPPage             = "auth/totp" // 驗證 TOTP
 
+	// 無需登入的頁面
+	OrgDetailPage = "org/detail" // 罷團資訊
+
 	// 所有人都能用的功能
 	DashboardPage      = "dashboard"        // 首頁
 	Enable2FAStep1Page = "2fa/enable/step1" // 掃 QR code
@@ -116,6 +119,8 @@ var validPages = map[string]bool{
 	LineCallbackPage:     true,
 	TelegramCallbackPage: true,
 	TOTPPage:             true,
+
+	OrgDetailPage: true,
 
 	DashboardPage:      true,
 	Enable2FAStep1Page: true,

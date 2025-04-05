@@ -20,3 +20,25 @@ func AddOrg(tx *gorm.DB, org Org, manager string) error {
 			}).Error
 	})
 }
+
+func GetOrg(tx *gorm.DB, name string) (ret *Org, cnt int64, err error) {
+	err = tx.Transaction(func(tx *gorm.DB) (err error) {
+		var x Org
+		err = tx.Where("name = ?", name).First(&x).Error
+		if err != nil {
+			return
+		}
+
+		err = tx.Model(&User{}).
+			Where("org_id = ?", x.ID).
+			Count(&cnt).Error
+		if err != nil {
+			return
+		}
+
+		ret = &x
+		return
+	})
+
+	return
+}
