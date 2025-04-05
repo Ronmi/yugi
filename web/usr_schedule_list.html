@@ -59,7 +59,10 @@
           <div class="card-body mb-2">
             <p class="mb-1"><i class="bi bi-calendar2-range me-2"></i>從 {{ time .BeginAt }}</p>
             <p class="mb-1"><i class="bi bi-calendar2-range me-2"></i>到 {{ time .EndAt }}</p>
-            <p class="mb-1"><i class="bi bi-geo-alt me-2"></i>{{ .Area }}</p>
+            <div class="mb-1 d-flex">
+              <div><i class="bi bi-geo-alt me-2"></i></div>
+              <div class="flex-grow-1">{{ nl2br .Area }}</div>
+            </div>
           </div>
           <div class="card-body">
             <button class="btn btn-primary" type="button" data-schedule-id="{{ .ID }}">預約這個行程</button>
