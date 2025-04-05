@@ -51,7 +51,7 @@ func (srv) MgrGrantRole(c Context) tmplspec {
 			Redir(config.MgrMemberListPage, "回成員列表")
 	}
 	if victim.TOTPSecret == "" {
-		return errParam("使用者尚未設定二步驟驗證").
+		return errParam("使用者尚未設定雙重驗證").
 			AddInfo(c).
 			AddMessage("請通知使用者設定後再授予權限").
 			Redir(config.MgrMemberListPage, "回成員列表")
