@@ -31,7 +31,7 @@ func initDB() (err error) {
 	params := dsnURL.Query()
 	params.Add("_pragma", "journal_mode=WAL")
 	params.Add("_pragma", "encoding='UTF-8'")
-	dsn = dsnURL.Host + "?" + params.Encode()
+	dsn = dsnURL.Host + dsnURL.Path + "?" + params.Encode()
 
 	DB, err = gorm.Open(sqlite.Open(dsn), &gorm.Config{
 		TranslateError: true,
