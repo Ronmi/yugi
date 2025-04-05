@@ -86,22 +86,22 @@
           <p class="mb-1">以下三項資訊請務必詳細填寫</p>
           <form id="make-appointment" action="{{ uri "usr/appointment/make" }}" method="post">
             <input type="hidden" name="schedule_id" id="schedule_id" value="" />
-            <div>
+            <div class="mb-3">
               <label class="form-label" for="name">稱呼</label>
               <input class="form-control" type="text" name="name" id="name" value="" />
               <span class="text-muted">志工該如何稱呼您。例如：林先生、陳小姐，或是您的本名、您的綽號</span>
             </div>
-            <div>
+            <div class="mb-3">
               <label class="form-label" for="prefer">時間偏好</label>
               <input class="form-control" type="text" name="prefer" id="prefer" value="" />
               <span class="text-muted">方便聯絡的時間及方式，請盡量詳細。例如周一至五晚上6~8點</span>
             </div>
-            <div>
+            <div class="mb-3">
               <label class="form-label" for="phone">電話</label>
               <input class="form-control" type="text" name="phone" id="phone" value="" />
               <span class="text-muted">可以填多個電話</span>
             </div>
-            <div class="mb-2">
+            <div class="mb-1">
               <button type="button" class="btn btn-primary" onclick="checkvalue()">確認預約</button>
               <button type="button" class="btn btn-accent" onclick="showall()">重新選擇行程</button>
             </div>
