@@ -5,8 +5,6 @@
 package web
 
 import (
-	"errors"
-
 	"github.com/Ronmi/yugi/actions"
 	"github.com/Ronmi/yugi/config"
 	"github.com/gin-gonic/gin"
@@ -108,12 +106,6 @@ func (srv) MgrScheduleDisable(c Context) tmplspec {
 
 	me := c.Session().CurrentUser().Get()
 	if err := actions.MgrDisableSchedule(c.DB(), me, p.ID); err != nil {
-		if errors.Is(err, actions.ErrDisableScheduleWithConfirmed) {
-			return errParam("參數錯誤").
-				AddInfo(c).
-				AddMessage("此行程有已經確認的預約，請先處理").
-				Redir(config.MgrScheduleListPage, "返回列表")
-		}
 		return errInternal("內部錯誤").
 			AddInfo(c).
 			AddError(err).

@@ -181,71 +181,6 @@ func ListAvailableSchedule(tx *gorm.DB, now time.Time, spec TimeSpec) (ret []*Sc
 	return
 }
 
-var ErrDisableScheduleWithConfirmed = errors.New("無法停用已確認預約的排程")
-
-func disableRelatedAppointments(tx *gorm.DB, s *Schedule) (err error) {
-	// 檢查有沒有已確認的預約
-	var cnt int64
-	err = tx.Model(&Appointment{}).
-		Joins("LEFT JOIN schedules ON schedules.id = appointments.schedule_id").
-		Where("schedules.id = ?", s.ID).
-		Where("appointments.status = ?", Confirmed).
-		Count(&cnt).Error
-	if err != nil {
-		return
-	}
-	if cnt > 0 {
-		return ErrDisableScheduleWithConfirmed
-	}
-
-	// 取消其他相關的預約
-	var app []*Appointment
-	err = tx.Model(&Appointment{}).
-		Preload("User").
-		Where("schedule_id = ?", s.ID).
-		Where("status IN (?)", Pending, Contacting).
-		Select("id, user_id").
-		Find(&app).Error
-	if err != nil {
-		return
-	}
-	l := len(app)
-	if l == 0 {
-		return
-	}
-	err = tx.Model(&Appointment{}).
-		Where("schedule_id = ?", s.ID).
-		Where("status IN (?)", Pending, Contacting).
-		Update("status", Cancelled).Error
-	if err != nil {
-		return
-	}
-
-	logs := make([]Log, 0, l*2)
-	for _, v := range app {
-		logs = append(logs, Log{
-			Action: DisableSchedule,
-			UserID: v.UserID,
-			Description: fmt.Sprintf(
-				"您的預約#%d 因排程#%d 停用而被取消",
-				v.ID, s.ID,
-			),
-		}, Log{
-			Action: DisableSchedule,
-			UserID: s.UserID,
-			Description: fmt.Sprintf(
-				"民眾 %s 的預約#%d (%s 狀態) 因你停用了排程#%d 而被取消",
-				v.User.Name, v.Status, s.ID,
-			),
-		})
-	}
-	if err = tx.Create(&logs).Error; err != nil {
-		return
-	}
-
-	return
-}
-
 func MgrDisableSchedule(tx *gorm.DB, mgr *User, id int64) error {
 	return tx.Transaction(func(tx *gorm.DB) (err error) {
 		s := &Schedule{}
@@ -253,11 +188,6 @@ func MgrDisableSchedule(tx *gorm.DB, mgr *User, id int64) error {
 			return
 		}
 		if err = tx.Model(s).Update("disabled", true).Error; err != nil {
-			return
-		}
-
-		err = disableRelatedAppointments(tx, s)
-		if err != nil {
 			return
 		}
 
@@ -283,11 +213,6 @@ func VolDisableSchedule(tx *gorm.DB, vol *User, id int64) error {
 		err = tx.Where("user_id = ?", vol.ID).
 			Where("id = ?", id).
 			First(s).Error
-		if err != nil {
-			return
-		}
-
-		err = disableRelatedAppointments(tx, s)
 		if err != nil {
 			return
 		}
