@@ -67,7 +67,8 @@
              data-status="{{ .Status }}"
              data-aid="{{ .ID }}"
              data-sid="{{ .Schedule.ID }}">
-          <div class="card-header d-flex align-items-center justify-content-between">
+          <div class="card-header d-flex align-items-center justify-content-between
+                      {{- if or (asRole "novice" | eq .Schedule.User.Role) (asStatus "notMatched" | eq .Status) }} bg-accent text-white{{ end }}">
             <div>
               {{ template "status" .Status }}
               <span class="ms-2">預約#{{ .ID }}</span>
