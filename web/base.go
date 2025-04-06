@@ -169,15 +169,19 @@ func New(db *gorm.DB) (task.Task, error) {
 	// 民眾專用
 	web.Group(config.BaseURLPath).
 		With(MustRole(actions.Member)).
-		GET(config.UsrScheduleListPage, srv.UsrScheduleList).
-		POST(config.UsrAppointmentMakePage, srv.UsrAppointmentMake).
-		GET(config.UsrAppointmentMakePage, srv.UsrAppointmentMake).
 		GET(config.UsrAppointmentListPage, srv.UsrAppointmentList).
 		GET(config.UsrAppointmentDetailPage, srv.UsrAppointmentDetail).
 		GET(config.UsrAppointmentDeletePage, srv.UsrAppointmentDelete).
 		GET(config.UsrReceiptCreatePage, srv.UsrReceiptCreate).
 		POST(config.UsrReceiptCreatePage, srv.UsrReceiptCreate).
 		GET(config.UsrReceiptViewPage, srv.UsrReceiptView)
+
+	// 民眾與志工共用 (建立預約)
+	web.Group(config.BaseURLPath).
+		With(MustRole(actions.Member, actions.Volunteer, actions.Manager)).
+		GET(config.UsrScheduleListPage, srv.UsrScheduleList).
+		POST(config.UsrAppointmentMakePage, srv.UsrAppointmentMake).
+		GET(config.UsrAppointmentMakePage, srv.UsrAppointmentMake)
 
 	// 幹部專用
 	web.Group(config.BaseURLPath).
